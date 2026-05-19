@@ -1,47 +1,38 @@
 import { useState, useEffect } from 'react';
 import PostCard from '../components/PostCard';
 import { Filter } from 'lucide-react';
-import { db } from '../firebase';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { getMockPosts } from '../utils/mockDb';
 
 const Feed = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ category: '', urgency: '' });
 
-  useEffect(() => {
+  const loadPosts = () => {
     setLoading(true);
-    
-    // Construct Firestore Query dynamically
-    let q = query(collection(db, "posts"));
+    let allPosts = getMockPosts();
 
+    // Client-side filtering
     if (filters.category) {
-      q = query(q, where("category", "==", filters.category));
+      allPosts = allPosts.filter(p => p.category === filters.category);
     }
     if (filters.urgency) {
-      q = query(q, where("urgency", "==", filters.urgency));
+      allPosts = allPosts.filter(p => p.urgency === filters.urgency);
     }
 
-    // Set up real-time listener
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const postsData = snapshot.docs.map(doc => ({
-        _id: doc.id,
-        ...doc.data(),
-        // Convert Firestore timestamp to Date
-        createdAt: doc.data().createdAt?.toDate() || new Date()
-      }));
-      
-      // Client-side sorting for accuracy/speed in real-time
-      postsData.sort((a, b) => b.createdAt - a.createdAt);
-      
-      setPosts(postsData);
-      setLoading(false);
-    }, (error) => {
-      console.error("Firestore listen error:", error);
-      setLoading(false);
-    });
+    // Sort by newest first
+    allPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    return () => unsubscribe();
+    setPosts(allPosts);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadPosts();
+
+    // Listen for new posts added (real-time simulation!)
+    window.addEventListener('mockPostsUpdated', loadPosts);
+    return () => window.removeEventListener('mockPostsUpdated', loadPosts);
   }, [filters]);
 
   const handleFilterChange = (e) => {
@@ -92,7 +83,7 @@ const Feed = () => {
       ) : (
         <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
           {posts.map(post => (
-            <PostCard key={post._id} post={post} />
+            <PostCard key={post._id} post={post} onUpdate={loadPosts} />
           ))}
         </div>
       )}

@@ -13,12 +13,12 @@ An advanced **AI-Powered "Institutional Intelligence Network"** designed to demo
 * **Sleek Highlight Bubbles**: Dynamically invokes Groq Llama 3.1 to generate exactly 3 key highlights in under 60 words, rendering inside a glowing glassmorphism highlights card immediately.
 
 ### 3. 🔐 Smart Authentication & Dual Emails (`/login`)
-* **Firebase Auth Integration**: Full client-side authentication with strict validation rules.
+* **Local Session Auth**: Lightweight client-side authentication backed by `localStorage` with strict email validation rules.
 * **Auto-Verification Logic**: Preferred `@college.edu` emails for auto-verified senior credentials, with an optional toggle for personal email fallbacks.
 
 ### 4. 📢 Real-Time Intelligence Feed (`/feed` & `/add-post`)
-* **MongoDB-Free Firestore Setup**: Fully migrated all database structures to **Cloud Firestore** for direct client-side CRUD operations.
-* **Instant Feed Synchronization**: Powered by real-time `onSnapshot` listeners. As soon as a user broadcasts an opportunity or upvotes, the feed updates **instantly** without page reloads!
+* **Zero-Setup Mock DB**: All posts are stored in `localStorage` for instant local CRUD, no external database required.
+* **Instant Feed Synchronization**: Powered by custom `window` events. As soon as a user broadcasts an opportunity or upvotes, the feed updates **instantly** without page reloads!
 * **Urgency Coding**: Dynamic color-coded priority badges based on academic urgency levels (High, Medium, Low).
 
 ### 5. 🕵️ Incognito Student Broadcasting
@@ -26,7 +26,7 @@ An advanced **AI-Powered "Institutional Intelligence Network"** designed to demo
 * **Incognito badges**: Cards display a beautiful yellow **Anonymous Contributor** shield warning icon on the Feed.
 
 ### 6. 🏆 Gamified Student Dashboard (`/dashboard`)
-* **Edit Profile Drawer**: Beautiful glassmorphic popup modal allowing students to update their skills, branch, college, and social handles in Firestore.
+* **Edit Profile Drawer**: Beautiful glassmorphic popup modal allowing students to update their skills, branch, college, and social handles, persisted in `localStorage`.
 * **Active Event Logger**: Custom listener tracking user clicks (e.g. "Upvoted TCS", "Bookmarked Google Scholarship") displaying them in a live activity tracker.
 * **Achievement Badges**: Clickable locked/unlocked milestone badges with custom explanatory popup modals.
 * **Dynamic Bookmarks List**: Collects saved opportunities in local storage and manages deletion.
@@ -41,8 +41,8 @@ An advanced **AI-Powered "Institutional Intelligence Network"** designed to demo
 |---|---|---|
 | **Frontend** | React (Vite) | Blazing-fast responsive single-page architecture |
 | **Styling** | Vanilla CSS | Custom Premium Glassmorphic design system |
-| **Auth** | Firebase Auth | Strict signup validation, dual-email validation |
-| **Database** | Firebase Cloud Firestore | Real-time listeners (`onSnapshot`), instant updates |
+| **Auth** | Local Session (`localStorage`) | Lightweight client-side validation & session |
+| **Database** | `localStorage` Mock DB | Zero-setup, instant CRUD with custom event listeners |
 | **Backend API** | Node.js + Express | Dedicated AI Microservice to secure API keys |
 | **LLM Engine** | Groq Cloud SDK | Blazing fast `llama-3.1-8b-instant` responses |
 | **Icons** | Lucide React | Clean, modern visual representations |
@@ -52,7 +52,6 @@ An advanced **AI-Powered "Institutional Intelligence Network"** designed to demo
 
 ### Prerequisites
 * **Node.js** (v16+ recommended)
-* **Firebase Project** configured with Web App + Firestore DB Enabled.
 * **Groq API Key** (from [console.groq.com](https://console.groq.com/))
 
 ### 1. Clone the Repository
@@ -75,24 +74,13 @@ cd CampusIntel-College-Intelligence-Platform
    ```
 
 ### 3. Configure Frontend (`/client`)
-1. Add your Firebase credentials inside `client/src/firebase.js`:
-   ```javascript
-   const firebaseConfig = {
-     apiKey: "YOUR_API_KEY",
-     authDomain: "YOUR_AUTH_DOMAIN",
-     projectId: "YOUR_PROJECT_ID",
-     storageBucket: "YOUR_STORAGE_BUCKET",
-     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-     appId: "YOUR_APP_ID"
-   };
-   ```
-2. Enable **Email/Password Authentication** in your Firebase console.
-3. Start the Vite React app:
+1. Install dependencies and start the Vite React app:
    ```bash
    cd client
    npm install
    npm run dev
    ```
+2. The app uses `localStorage` for auth and data — no external setup required.
 
 ## 👨‍💻 Contributing
 

@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Setup AI Groq endpoints only (MongoDB removed, Database logic moved to direct Firestore frontend)
+// Setup AI Groq endpoints only (database logic moved to client-side localStorage)
 app.use("/api/ai", require("./routes/aiRoutes"));
 
 const PORT = process.env.PORT || 5000;
