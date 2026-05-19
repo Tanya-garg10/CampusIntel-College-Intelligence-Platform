@@ -14,7 +14,8 @@ const AddPost = () => {
     category: 'placement',
     urgency: 'low',
     college: '',
-    branch: ''
+    branch: '',
+    anonymous: false
   });
 
   useEffect(() => {
@@ -31,7 +32,11 @@ const AddPost = () => {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setFormData({ 
+      ...formData, 
+      [name]: type === 'checkbox' ? checked : value 
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -48,6 +53,7 @@ const AddPost = () => {
         college: formData.college || 'Default College',
         branch: formData.branch || 'Default Branch',
         trustScore: 0,
+        anonymous: formData.anonymous,
         createdBy: currentUser?.uid || 'Anonymous',
         createdAt: serverTimestamp()
       });
@@ -121,6 +127,20 @@ const AddPost = () => {
               onChange={handleChange}
               required 
             ></textarea>
+          </div>
+
+          <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+            <input 
+              type="checkbox" 
+              name="anonymous" 
+              id="anonymous-toggle"
+              checked={formData.anonymous} 
+              onChange={handleChange}
+              style={{ width: 'auto', transform: 'scale(1.25)', cursor: 'pointer' }}
+            />
+            <label htmlFor="anonymous-toggle" style={{ margin: 0, cursor: 'pointer', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+              Broadcast Anonymously (Hide your identity from juniors)
+            </label>
           </div>
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>

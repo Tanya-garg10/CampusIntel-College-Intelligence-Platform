@@ -51,4 +51,37 @@ router.post("/chat", async (req, res) => {
   }
 });
 
+// AI Quick Summarizer for Feed Posts (Extra Judge-Wow Feature)
+router.post("/summarize", async (req, res) => {
+  const { description } = req.body;
+
+  if (!description) {
+    return res.status(400).json({ error: "Description is required for summary" });
+  }
+
+  try {
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are a smart academic assistant. Summarize the following campus post description into exactly 3 very short, high-impact bullet points. Do NOT use any asterisks, markdown, or bold characters. Keep it under 60 words."
+        },
+        {
+          role: "user",
+          content: description
+        }
+      ],
+      model: "llama-3.1-8b-instant",
+      temperature: 0.3,
+      max_tokens: 150
+    });
+
+    const summary = completion.choices[0]?.message?.content || "No summary available.";
+    res.json({ summary });
+  } catch (error) {
+    console.error("Groq Summary Error:", error);
+    res.status(500).json({ error: "Summary engine offline" });
+  }
+});
+
 module.exports = router;
