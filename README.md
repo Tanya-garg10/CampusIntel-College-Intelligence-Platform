@@ -2,8 +2,6 @@
 
 An advanced **AI-Powered "Institutional Intelligence Network"** designed to democratize hidden college knowledge. It helps college students (especially juniors and first-generation students) discover academic strategies, placement insights, scholarship opportunities, and clubs through verified peer intelligence, predictive urgency alerts, dynamic profile gamification, and an interactive **Llama 3.1 AI Mentor**.
 
----
-
 ## 🎯 Core Features
 
 ### 1. 🧠 AI Campus Mentor (`/ai-mentor`)
@@ -37,8 +35,6 @@ An advanced **AI-Powered "Institutional Intelligence Network"** designed to demo
 * **Vertical Timeline**: Visually presents placement events, GDSC study jams, and exam dates.
 * **Interactive Google Sync**: Live sync simulation featuring a spinning loader (`Syncing...`) and a stunning green success alert banner.
 
----
-
 ## 🛠️ Technology Stack
 
 | Layer | Technology | Key Use Case |
@@ -51,7 +47,6 @@ An advanced **AI-Powered "Institutional Intelligence Network"** designed to demo
 | **LLM Engine** | Groq Cloud SDK | Blazing fast `llama-3.1-8b-instant` responses |
 | **Icons** | Lucide React | Clean, modern visual representations |
 
----
 
 ## 🚀 Installation & Local Setup
 
@@ -99,17 +94,6 @@ cd CampusIntel-College-Intelligence-Platform
    npm run dev
    ```
 
----
-
-## 💎 Design System & Aesthetic Details
-
-The platform uses a carefully curated **Dark Mode Glassmorphic Theme**:
-* **Harmonious Palette**: HSL Tailored slate `#0f172a` base, deep cards `#1e293b`, and glowing blue accents `#3b82f6`.
-* **Tactile Micro-interactions**: Smooth 0.2s translations on button hovers, dynamic modal overlays, and spinning loader animations.
-* **SEO Best Practices**: Proper title headings structure, descriptive meta headers, and unique interactive component IDs for automation.
-
----
-
 ## 👨‍💻 Contributing
 
 1. Fork this repository.
@@ -117,7 +101,5 @@ The platform uses a carefully curated **Dark Mode Glassmorphic Theme**:
 3. Commit your changes (`git commit -m 'Add NewFeature'`).
 4. Push to the branch (`git push origin feature/NewFeature`).
 5. Create a Pull Request.
-
----
 
 *Made with ❤️ for Hackathons. CampusIntel democratizes student success!*
