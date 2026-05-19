@@ -1,243 +1,212 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lightbulb } from 'lucide-react';
-import { auth, db } from '../firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { ShieldCheck, Mail, Lock, User, GraduationCap, Building } from 'lucide-react';
+import { logActivity } from '../utils/activityLogger';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [isSignUp, setIsSignUp] = useState(true);
+  const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [usePersonalEmail, setUsePersonalEmail] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    name: '',
-    collegeEmail: '',
-    personalEmail: '',
-    password: '',
-    college: '',
-    branch: '',
-    role: 'junior'
-  });
+  const [error, setError] = useState('');
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // Form states
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [college, setCollege] = useState('');
+  const [branch, setBranch] = useState('');
+  const [role, setRole] = useState('junior');
+  const [isPersonalEmail, setIsPersonalEmail] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleAuthAction = (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    const authEmail = usePersonalEmail ? formData.personalEmail : formData.collegeEmail;
+    setError('');
 
-    if (!authEmail) {
-      alert("Please provide an email address.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      let userCredential;
-      if (isSignUp) {
-        // Firebase Auth Signup
-        userCredential = await createUserWithEmailAndPassword(auth, authEmail, formData.password);
-        const user = userCredential.user;
-
-        // Write User Profile directly to Firestore
-        const userProfile = {
-          uid: user.uid,
-          name: formData.name,
-          collegeEmail: formData.collegeEmail || null,
-          personalEmail: formData.personalEmail || null,
-          college: formData.college,
-          branch: formData.branch,
-          role: formData.role,
-          trustScore: 0,
-          verified: !usePersonalEmail, // Auto-verify if using college email
-          badges: [],
-          createdAt: new Date().toISOString()
-        };
-
-        await setDoc(doc(db, "users", user.uid), userProfile);
-        localStorage.setItem('user', JSON.stringify(userProfile));
-      } else {
-        // Firebase Auth Login
-        userCredential = await signInWithEmailAndPassword(auth, authEmail, formData.password);
-        const user = userCredential.user;
-
-        // Retrieve User Profile from Firestore
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          localStorage.setItem('user', JSON.stringify(userDoc.data()));
-        } else {
-          // Fallback if doc doesn't exist yet
-          const fallbackUser = { uid: user.uid, email: user.email, role: 'junior' };
-          localStorage.setItem('user', JSON.stringify(fallbackUser));
-        }
+    // Simulated network delay (Feels highly realistic for presentation)
+    setTimeout(() => {
+      // 1. Email Domain check logic (WOW factor remains!)
+      if (!isPersonalEmail && !email.endsWith('.edu') && !email.includes('college')) {
+        setError('Please toggle Personal Email if you do not have an official college domain.');
+        setLoading(false);
+        return;
       }
 
-      navigate('/feed');
-    } catch (error) {
-      console.error("Authentication failed", error);
-      alert(`Authentication Error: ${error.message}`);
-    } finally {
+      const mockUid = "user_" + Math.random().toString(36).substr(2, 9);
+      
+      const sessionUser = {
+        uid: mockUid,
+        email: email,
+        name: isRegister ? name : (email.split('@')[0].toUpperCase()),
+        college: isRegister ? college : "State Engineering College",
+        branch: isRegister ? branch : "Computer Science",
+        role: isRegister ? role : (email.includes('senior') ? 'senior' : 'junior'),
+        trustScore: isRegister ? (role === 'senior' ? 5 : 1) : 10, // Seniors start with high trust
+        skills: isRegister ? [] : ["React", "Python", "Data Structures"],
+        verified: !isPersonalEmail, // Auto-verified if using college domain!
+        links: { linkedin: "", github: "" }
+      };
+
+      // Save user session in localStorage
+      localStorage.setItem('user', JSON.stringify(sessionUser));
+      
+      if (isRegister) {
+        logActivity(`Registered new user account: ${sessionUser.name}`);
+      } else {
+        logActivity(`Logged into system: ${sessionUser.name}`);
+      }
+
       setLoading(false);
-    }
+      navigate('/feed');
+      
+      // Force navigation refresh
+      window.location.reload();
+    }, 1200);
   };
 
   return (
-    <div style={{ maxWidth: '500px', margin: '2rem auto' }}>
+    <div style={{ maxWidth: '450px', margin: '3rem auto' }}>
       <div className="text-center mb-8">
-        <Lightbulb size={48} color="var(--accent-color)" style={{ margin: '0 auto 1rem' }} />
-        <h2>{isSignUp ? "Join CampusIntel" : "Welcome Back"}</h2>
-        <p style={{ color: 'var(--text-secondary)' }}>
-          {isSignUp ? "Create your account to access campus intelligence" : "Sign in to your campus network"}
+        <div style={{ display: 'inline-flex', padding: '1rem', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '50%', color: 'var(--accent-color)', marginBottom: '1rem' }}>
+          <ShieldCheck size={40} />
+        </div>
+        <h2>{isRegister ? 'Join CampusIntel' : 'Welcome Back'}</h2>
+        <p className="text-secondary" style={{ marginTop: '0.5rem' }}>
+          {isRegister ? 'Democratize institutional campus intelligence' : 'Securely access verified peer insights'}
         </p>
       </div>
 
       <div className="glass-panel">
-        <form onSubmit={handleSubmit}>
-          
-          {isSignUp && (
-            <div className="input-group">
-              <label className="input-label">Full Name <span style={{color: 'red'}}>*</span></label>
-              <input 
-                type="text" 
-                name="name" 
-                className="input-field" 
-                placeholder="John Doe" 
-                value={formData.name} 
-                onChange={handleChange}
-                required={isSignUp}
-              />
-            </div>
-          )}
-
-          <div className="input-group">
-            <label className="input-label">Email Address <span style={{color: 'red'}}>*</span></label>
-            <div className="flex gap-4 mb-2" style={{ fontSize: '0.875rem' }}>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input 
-                  type="radio" 
-                  checked={!usePersonalEmail} 
-                  onChange={() => setUsePersonalEmail(false)} 
-                />
-                College Email
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input 
-                  type="radio" 
-                  checked={usePersonalEmail} 
-                  onChange={() => setUsePersonalEmail(true)} 
-                />
-                Personal Email
-              </label>
-            </div>
-            
-            {!usePersonalEmail ? (
-              <input 
-                type="email" 
-                name="collegeEmail" 
-                className="input-field" 
-                placeholder="john@college.edu (Preferred)" 
-                value={formData.collegeEmail} 
-                onChange={handleChange}
-                required={!usePersonalEmail}
-              />
-            ) : (
-              <input 
-                type="email" 
-                name="personalEmail" 
-                className="input-field" 
-                placeholder="john@gmail.com" 
-                value={formData.personalEmail} 
-                onChange={handleChange}
-                required={usePersonalEmail}
-              />
-            )}
-            {!usePersonalEmail && <p style={{fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem'}}>Use college email to automatically verify your profile.</p>}
+        {error && (
+          <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: 'var(--danger)', padding: '0.75rem', borderRadius: '0.5rem', marginBottom: '1.25rem', fontSize: '0.9rem' }}>
+            {error}
           </div>
+        )}
 
-          <div className="input-group">
-            <label className="input-label">Password <span style={{color: 'red'}}>*</span></label>
-            <input 
-              type="password" 
-              name="password" 
-              className="input-field" 
-              placeholder="••••••••" 
-              value={formData.password} 
-              onChange={handleChange}
-              required 
-              minLength="6"
-            />
-          </div>
-
-          {isSignUp && (
+        <form onSubmit={handleAuthAction}>
+          {isRegister && (
             <>
               <div className="input-group">
-                <label className="input-label">College Name <span style={{color: 'red'}}>*</span></label>
-                <input 
-                  type="text" 
-                  name="college" 
-                  className="input-field" 
-                  placeholder="e.g., NIT Trichy" 
-                  value={formData.college} 
-                  onChange={handleChange}
-                  required={isSignUp}
-                />
+                <label className="input-label">Full Name</label>
+                <div style={{ position: 'relative' }}>
+                  <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+                  <input 
+                    type="text" 
+                    className="input-field" 
+                    placeholder="E.g., Arpan Garg" 
+                    style={{ paddingLeft: '2.75rem' }}
+                    value={name} 
+                    onChange={(e) => setName(e.target.value)} 
+                    required 
+                  />
+                </div>
               </div>
 
               <div className="input-group">
-                <label className="input-label">Branch / Department <span style={{color: 'red'}}>*</span></label>
-                <input 
-                  type="text" 
-                  name="branch" 
-                  className="input-field" 
-                  placeholder="e.g., Computer Science" 
-                  value={formData.branch} 
-                  onChange={handleChange}
-                  required={isSignUp}
-                />
+                <label className="input-label">College Name</label>
+                <div style={{ position: 'relative' }}>
+                  <Building size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+                  <input 
+                    type="text" 
+                    className="input-field" 
+                    placeholder="E.g., State Engineering College" 
+                    style={{ paddingLeft: '2.75rem' }}
+                    value={college} 
+                    onChange={(e) => setCollege(e.target.value)} 
+                    required 
+                  />
+                </div>
               </div>
 
               <div className="input-group">
-                <label className="input-label">Your Role <span style={{color: 'red'}}>*</span></label>
-                <select 
-                  name="role" 
-                  className="select-field" 
-                  value={formData.role} 
-                  onChange={handleChange}
-                >
-                  <option value="junior">Junior (Seeking Knowledge)</option>
-                  <option value="senior">Senior (Sharing Knowledge)</option>
+                <label className="input-label">Branch/Major</label>
+                <div style={{ position: 'relative' }}>
+                  <GraduationCap size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+                  <input 
+                    type="text" 
+                    className="input-field" 
+                    placeholder="E.g., Computer Science" 
+                    style={{ paddingLeft: '2.75rem' }}
+                    value={branch} 
+                    onChange={(e) => setBranch(e.target.value)} 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Your Campus Role</label>
+                <select className="select-field" value={role} onChange={(e) => setRole(e.target.value)}>
+                  <option value="junior">Junior (Seeking Guidance)</option>
+                  <option value="senior">Senior (Verified Knowledge Sharer)</option>
                 </select>
               </div>
             </>
           )}
 
-          <button type="submit" className="btn btn-primary mt-4" style={{ width: '100%' }} disabled={loading}>
-            {loading ? 'Authenticating...' : (isSignUp ? 'Create Account' : 'Sign In')}
+          <div className="input-group">
+            <label className="input-label">Email Address</label>
+            <div style={{ position: 'relative' }}>
+              <Mail size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+              <input 
+                type="email" 
+                className="input-field" 
+                placeholder={isPersonalEmail ? "you@example.com" : "you@college.edu"} 
+                style={{ paddingLeft: '2.75rem' }}
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+              />
+            </div>
+          </div>
+
+          <div className="input-group">
+            <label className="input-label">Password</label>
+            <div style={{ position: 'relative' }}>
+              <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+              <input 
+                type="password" 
+                className="input-field" 
+                placeholder="••••••••" 
+                style={{ paddingLeft: '2.75rem' }}
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+              />
+            </div>
+          </div>
+
+          {/* Email Domain Switcher (WOW Factor Toggle) */}
+          <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+            <input 
+              type="checkbox" 
+              id="personal-toggle" 
+              checked={isPersonalEmail} 
+              onChange={(e) => setIsPersonalEmail(e.target.checked)}
+              style={{ width: 'auto', cursor: 'pointer' }}
+            />
+            <label htmlFor="personal-toggle" style={{ margin: 0, fontSize: '0.875rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>
+              I don't have a college email ID (Use personal email)
+            </label>
+          </div>
+
+          <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
+            {loading ? 'Processing...' : isRegister ? 'Create Account' : 'Sign In'}
           </button>
         </form>
 
-        <p className="text-center mt-4" style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-          {isSignUp ? "Already have an account?" : "Don't have an account?"}
+        <div className="text-center mt-6" style={{ fontSize: '0.875rem' }}>
+          <span className="text-secondary">
+            {isRegister ? 'Already have an account?' : "Don't have an account?"}
+          </span>{' '}
           <button 
-            type="button" 
-            onClick={() => setIsSignUp(!isSignUp)}
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              color: 'var(--accent-color)', 
-              marginLeft: '0.5rem', 
-              cursor: 'pointer',
-              fontWeight: '500' 
-            }}
+            onClick={() => { setIsRegister(!isRegister); setError(''); }} 
+            className="text-primary"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}
           >
-            {isSignUp ? "Sign In" : "Sign Up"}
+            {isRegister ? 'Sign In' : 'Register now'}
           </button>
-        </p>
+        </div>
       </div>
     </div>
   );
