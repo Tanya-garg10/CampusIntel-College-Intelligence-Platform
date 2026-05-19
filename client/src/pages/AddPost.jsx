@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { addMockPost } from '../utils/mockDb';
+import { logActivity } from '../utils/activityLogger';
 
 const AddPost = () => {
   const navigate = useNavigate();
@@ -39,32 +39,27 @@ const AddPost = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
     
-    try {
-      // Add Post directly to Firebase Firestore
-      await addDoc(collection(db, "posts"), {
+    // Simulate network delay for realistic UX feel
+    setTimeout(() => {
+      addMockPost({
         title: formData.title,
         description: formData.description,
         category: formData.category,
         urgency: formData.urgency,
-        college: formData.college || 'Default College',
-        branch: formData.branch || 'Default Branch',
-        trustScore: 0,
+        college: formData.college || 'State Engineering College',
+        branch: formData.branch || 'Computer Science',
         anonymous: formData.anonymous,
         createdBy: currentUser?.uid || 'Anonymous',
-        createdAt: serverTimestamp()
       });
-      
-      navigate('/feed');
-    } catch (error) {
-      console.error("Error creating post in Firestore:", error);
-      alert("Failed to publish post: " + error.message);
-    } finally {
+
+      logActivity(`Broadcast "${formData.title}" to campus`);
       setLoading(false);
-    }
+      navigate('/feed');
+    }, 1000);
   };
 
   return (
