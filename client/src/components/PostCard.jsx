@@ -49,7 +49,8 @@ const PostCard = ({ post }) => {
     
     setLoadingSummary(true);
     try {
-      const response = await axios.post("http://localhost:5000/api/ai/summarize", {
+      const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const response = await axios.post(`${apiBaseUrl}/api/ai/summarize`, {
         description: post.description
       });
       setSummary(response.data.summary);
