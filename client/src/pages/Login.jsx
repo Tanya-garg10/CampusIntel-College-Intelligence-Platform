@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Mail, Lock, User, GraduationCap, Building } from 'lucide-react';
 import { logActivity } from '../utils/activityLogger';
 
 const Login = () => {
-  const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -33,7 +31,7 @@ const Login = () => {
       }
 
       const mockUid = "user_" + Math.random().toString(36).substr(2, 9);
-      
+
       const sessionUser = {
         uid: mockUid,
         email: email,
@@ -49,7 +47,7 @@ const Login = () => {
 
       // Save user session in localStorage
       localStorage.setItem('user', JSON.stringify(sessionUser));
-      
+
       if (isRegister) {
         logActivity(`Registered new user account: ${sessionUser.name}`);
       } else {
@@ -57,10 +55,9 @@ const Login = () => {
       }
 
       setLoading(false);
-      navigate('/feed');
-      
-      // Force navigation refresh
-      window.location.reload();
+
+      // Clean full-page navigation so Navbar/Dashboard pick up the new session
+      window.location.href = '/feed';
     }, 1200);
   };
 
@@ -90,14 +87,14 @@ const Login = () => {
                 <label className="input-label">Full Name</label>
                 <div style={{ position: 'relative' }}>
                   <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    placeholder="E.g., Arpan Garg" 
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="E.g., Arpan Garg"
                     style={{ paddingLeft: '2.75rem' }}
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    required 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
                   />
                 </div>
               </div>
@@ -106,14 +103,14 @@ const Login = () => {
                 <label className="input-label">College Name</label>
                 <div style={{ position: 'relative' }}>
                   <Building size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    placeholder="E.g., State Engineering College" 
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="E.g., State Engineering College"
                     style={{ paddingLeft: '2.75rem' }}
-                    value={college} 
-                    onChange={(e) => setCollege(e.target.value)} 
-                    required 
+                    value={college}
+                    onChange={(e) => setCollege(e.target.value)}
+                    required
                   />
                 </div>
               </div>
@@ -122,14 +119,14 @@ const Login = () => {
                 <label className="input-label">Branch/Major</label>
                 <div style={{ position: 'relative' }}>
                   <GraduationCap size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    placeholder="E.g., Computer Science" 
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="E.g., Computer Science"
                     style={{ paddingLeft: '2.75rem' }}
-                    value={branch} 
-                    onChange={(e) => setBranch(e.target.value)} 
-                    required 
+                    value={branch}
+                    onChange={(e) => setBranch(e.target.value)}
+                    required
                   />
                 </div>
               </div>
@@ -148,14 +145,14 @@ const Login = () => {
             <label className="input-label">Email Address</label>
             <div style={{ position: 'relative' }}>
               <Mail size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-              <input 
-                type="email" 
-                className="input-field" 
-                placeholder={isPersonalEmail ? "you@example.com" : "you@college.edu"} 
+              <input
+                type="email"
+                className="input-field"
+                placeholder={isPersonalEmail ? "you@example.com" : "you@college.edu"}
                 style={{ paddingLeft: '2.75rem' }}
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                required 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
           </div>
@@ -164,24 +161,24 @@ const Login = () => {
             <label className="input-label">Password</label>
             <div style={{ position: 'relative' }}>
               <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
-              <input 
-                type="password" 
-                className="input-field" 
-                placeholder="••••••••" 
+              <input
+                type="password"
+                className="input-field"
+                placeholder="••••••••"
                 style={{ paddingLeft: '2.75rem' }}
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                required 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
           </div>
 
           {/* Email Domain Switcher (WOW Factor Toggle) */}
           <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-            <input 
-              type="checkbox" 
-              id="personal-toggle" 
-              checked={isPersonalEmail} 
+            <input
+              type="checkbox"
+              id="personal-toggle"
+              checked={isPersonalEmail}
               onChange={(e) => setIsPersonalEmail(e.target.checked)}
               style={{ width: 'auto', cursor: 'pointer' }}
             />
@@ -199,8 +196,8 @@ const Login = () => {
           <span className="text-secondary">
             {isRegister ? 'Already have an account?' : "Don't have an account?"}
           </span>{' '}
-          <button 
-            onClick={() => { setIsRegister(!isRegister); setError(''); }} 
+          <button
+            onClick={() => { setIsRegister(!isRegister); setError(''); }}
             className="text-primary"
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 500 }}
           >

@@ -1,11 +1,23 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Lightbulb, PlusCircle, LayoutList, LogIn } from 'lucide-react';
+import { Lightbulb, PlusCircle, LayoutList, LogIn, LogOut, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const Navbar = () => {
   const location = useLocation();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('user');
+    if (stored) setUser(JSON.parse(stored));
+  }, [location.pathname]);
 
   const isActive = (path) => {
     return location.pathname === path ? "nav-link active" : "nav-link";
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    window.location.href = '/';
   };
 
   return (
@@ -31,9 +43,25 @@ const Navbar = () => {
           <Link to="/add-post" className={isActive("/add-post")}>
             <span className="flex items-center gap-2"><PlusCircle size={18} /> Add Post</span>
           </Link>
-          <Link to="/login" className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>
-            <span className="flex items-center gap-2"><LogIn size={18} /> Login</span>
-          </Link>
+
+          {user ? (
+            <>
+              <span className="nav-link" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-color)' }}>
+                <User size={18} /> {user.name}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="btn btn-outline"
+                style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <LogOut size={18} /> Logout
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>
+              <span className="flex items-center gap-2"><LogIn size={18} /> Login</span>
+            </Link>
+          )}
         </div>
       </div>
     </nav>
